@@ -475,6 +475,20 @@ void CSoundManager::VolumeInit()
 		XAudio2File::CreateBinary(BINARY_FILE_PATH, INIT_VOLUME);
 		GetInstance()->m_stSound = INIT_VOLUME;
 	}
+	//---------------------
+	// 音量を適応する.
+	CSoundManager::GetInstance()->m_stSound = GetInstance()->m_stSound;
+	// BGM用ループ.
+	for (size_t i = 0; i < GetInstance()->m_vsBGMNameList.size(); i++) {
+		GetInstance()->pBgmSource[GetInstance()->m_vsBGMNameList[i]]->SetBGMVolume(GetInstance()->m_stSound.BGMVolume);	// 音量をセット.
+		if (GetInstance()->m_bMoveSoundVolumeThread == false) break;
+	}
+	// SE用ループ.
+	for (size_t i = 0; i < GetInstance()->m_vsSENameList.size(); i++) {
+		GetInstance()->pSeSource[GetInstance()->m_vsSENameList[i]]->SetMaxSEVolume(GetInstance()->m_stSound.SEVolume);	// 音量をセット.
+		if (GetInstance()->m_bMoveSoundVolumeThread == false) break;
+	}
+	SetMasterVolume(GetInstance()->m_stSound.MasterVolume);
 }
 bool CSoundManager::CheckBGMDataIsTrue(const std::string Name)
 {
