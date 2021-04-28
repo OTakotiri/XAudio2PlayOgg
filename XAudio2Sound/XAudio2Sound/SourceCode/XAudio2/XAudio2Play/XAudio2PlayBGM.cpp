@@ -152,9 +152,7 @@ bool CXAudio2PlayBGM::Play(std::shared_ptr<COggLoad> pWavData, const char* filen
 	if (m_pSourceVoice == nullptr) return false;
 	// ピッチ設定.
 	SetPitch(m_fPitch);
-	if (CSoundManager::GetInstance()->m_stSound.BGMVolume == GetVolume()) {
-		SetBGMVolume(CSoundManager::GetInstance()->m_stSound.BGMVolume);
-	}
+	if (CSoundManager::GetInstance()->m_stSound.BGMVolume == GetVolume()) SetBGMVolume(CSoundManager::GetInstance()->m_stSound.BGMVolume);
 	// SoundSourceを再生.
 	m_pSourceVoice->Start();
 	// Submitは初回再生時のみ実行する.
