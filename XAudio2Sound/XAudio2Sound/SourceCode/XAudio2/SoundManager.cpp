@@ -1,7 +1,6 @@
 #include "SoundManager.h"
 #include <crtdbg.h>
 #include <filesystem>	// C++17 必須.
-
 namespace fs = std::filesystem;
 //=============================
 // 定数宣言.
@@ -111,13 +110,16 @@ void CSoundManager::CreateSoundData()
 void CSoundManager::ThreadPlayBGM(const std::string& Name, const bool& LoopFlag)
 {
 	if (Name.size() == 0) return;
+
 	// データチェック.
 	if (CheckBGMDataIsTrue(Name) == false) return;
 	GetInstance()->m_bisEndThread[Name] = false;
 	// スレッドに入れるラムダ関数.
 	auto BGM = [&]()
 	{
-		CSoundManager::PlayBGM(Name, GetInstance()->m_bisEndThread[Name]);	// 再生関数.
+		std::string BGMName = Name;
+		CSoundManager::PlayBGM(BGMName, GetInstance()->m_bisEndThread[Name],LoopFlag);	// 再生関数.
+		StopBGMThread(BGMName); // 解放し忘れ防止のため一応ここでも呼んでおく.
 	};
 
 	DWORD ThreadExitCode = -1;
@@ -133,13 +135,13 @@ void CSoundManager::ThreadPlayBGM(const std::string& Name, const bool& LoopFlag)
 //=============================
 // BGM再生関数(内部使用).
 //=============================
-void CSoundManager::PlayBGM(const std::string Name, bool& isEnd)
+void CSoundManager::PlayBGM(const std::string Name, bool& isEnd, const bool& IsLoop)
 {
 	// データチェック.
 	if (CheckBGMDataIsTrue(Name) == false) return;
 	// 再生.
 	GetInstance()->pBgmSource[Name]->Play(GetInstance()->m_pOggWavData[Name],
-		GetInstance()->m_pOggWavData[Name]->GetFileName(), isEnd);
+		GetInstance()->m_pOggWavData[Name]->GetFileName(), isEnd,IsLoop);
 }
 //=============================
 // BGM一時停止.
@@ -201,8 +203,9 @@ void CSoundManager::StopBGM(const std::string Name)
 //=============================
 void CSoundManager::FadeOutBGM(const std::string Name)
 {
-	if (CheckBGMDataIsTrue(Name) == false) return;			// データチェック.
-	GetInstance()->pBgmSource[Name]->SetFadeInFlag(false);	// フェードイン中だった場合、それを止めフェードアウトを始める.
+	if (CheckBGMDataIsTrue(Name) == false) return;						// データチェック.
+	if (GetInstance()->pBgmSource[Name]->IsPlaying() == false) return;	// サウンドを再生していない.
+	GetInstance()->pBgmSource[Name]->SetFadeInFlag(false);				// フェードイン中だった場合、それを止めフェードアウトを始める.
 	// フェードアウトフラグを立てる.
 	if (GetInstance()->pBgmSource[Name]->GetFadeOutFlag() == false) GetInstance()->pBgmSource[Name]->SetFadeOutFlag(true);
 }
@@ -219,8 +222,9 @@ const bool CSoundManager::GetFadeOutBGM(const std::string Name)
 //=============================
 void CSoundManager::FadeInBGM(const std::string Name)
 {
-	if (CheckBGMDataIsTrue(Name) == false) return;			// データチェック.	
-	GetInstance()->pBgmSource[Name]->SetFadeOutFlag(false); // フェードアウト中だった場合、それを止めフェードインを始める.
+	if (CheckBGMDataIsTrue(Name) == false) return;						// データチェック.
+	if (GetInstance()->pBgmSource[Name]->IsPlaying() == false) return;	// サウンドを再生していない.
+	GetInstance()->pBgmSource[Name]->SetFadeOutFlag(false);				 // フェードアウト中だった場合、それを止めフェードインを始める.
 	// フェードインフラグを立てる.
 	if (GetInstance()->pBgmSource[Name]->GetFadeInFlag() == false ) GetInstance()->pBgmSource[Name]->SetFadeInFlag(true);
 }
@@ -392,7 +396,6 @@ void CSoundManager::Release()
 	while (ReleaseChangeSoundVolumeThread() == false);
 	// 音量をバイナリデータにセーブ.
 	XAudio2File::CreateBinary(BINARY_FILE_PATH, GetInstance()->m_stSound);
-
 	// SEの名前リスト数分ループを回す.
 	for (size_t i = 0; i < GetInstance()->m_vsSENameList.size(); i++) {
 		StopAllSE(GetInstance()->m_vsSENameList[i]);
@@ -489,6 +492,7 @@ void CSoundManager::VolumeInit()
 		if (GetInstance()->m_bMoveSoundVolumeThread == false) break;
 	}
 	SetMasterVolume(GetInstance()->m_stSound.MasterVolume);
+
 }
 bool CSoundManager::CheckBGMDataIsTrue(const std::string Name)
 {

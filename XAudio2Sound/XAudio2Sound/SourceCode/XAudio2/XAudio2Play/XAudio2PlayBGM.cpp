@@ -4,6 +4,7 @@
 #include <vector>
 #include <process.h>
 #include <thread>
+
 #include "..\SoundManager.h"
 
 //=============================
@@ -144,7 +145,7 @@ const bool CXAudio2PlayBGM::IsPlaying()
 //=============================
 // 再生.
 //=============================
-bool CXAudio2PlayBGM::Play(std::shared_ptr<COggLoad> pWavData, const char* filename, bool& isEnd)
+bool CXAudio2PlayBGM::Play(std::shared_ptr<COggLoad> pWavData, const char* filename, bool& isEnd, const bool& IsLoop)
 {
 	// ロック.
 	std::unique_lock<std::mutex> lock(m_mtx);
@@ -168,7 +169,8 @@ bool CXAudio2PlayBGM::Play(std::shared_ptr<COggLoad> pWavData, const char* filen
 		m_pOggData->ReadChunk(m_Buff, m_Buff_cnt, m_Len, &m_Size);
 		// 最後まで読み切った.
 		if (m_Size <= 0) {
-			// 終了(停止)フラグが立っていない.
+			// 終了(停止)フラグが立っていない か ループフラグが立っていない.
+			if (IsLoop == false) break;
 			if (isEnd == false) {
 				Sleep(20);
 				//データの読み取るポインタをリセット.

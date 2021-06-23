@@ -17,7 +17,7 @@ int main()
 	while (1)
 	{
 		if (GetAsyncKeyState('D') & 0x8000) {
-			CSoundManager::PlaySE("SEの名前");	// SEの名前をSEスレッドクラスに送る.
+			CSoundManager::PlaySE("SEの名前");	// SEの名前で再生.
 		}
 		if (GetAsyncKeyState('W') & 0x8000) {
 			// BGM停止兼スレッド停止.

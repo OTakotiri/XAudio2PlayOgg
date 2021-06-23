@@ -25,7 +25,7 @@ public: //---------------- 関数 -----------------
 	// 再生してるかどうか取得関数.
 	const bool IsPlaying();
 	// サウンド再生、前に一時停止されていた場合は記憶位置から再開.
-	bool Play(std::shared_ptr< COggLoad> pWavData, const char* filename, bool& isEnd);
+	bool Play(std::shared_ptr< COggLoad> pWavData, const char* filename, bool& isEnd,const bool& IsLoop = true);
 	// BGMサウンドを完全停止.(位置を保持しない).
 	bool Stop();
 	// サウンド一時停止.

@@ -109,7 +109,7 @@ public:
 	SoundVolume m_stSound;
 private:
 	// BGM再生関数.
-	static void PlayBGM(const std::string Name, bool& isEnd);
+	static void PlayBGM(const std::string Name, bool& isEnd,const bool& IsLoop = true);
 	// 音量を変更するスレッドを立てる.
 	static void SetChangeVolumeThread();
 	// 音量初期設定関数.

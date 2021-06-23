@@ -1,10 +1,11 @@
-#ifndef XAUDIO2_H
-#define XAUDIO2_H
+#ifndef C_XAUDIO2_H
+#define C_XAUDIO2_H
 
 #include <xaudio2.h>
 #include <xaudio2fx.h>
+#include <iostream>
 #include <fstream>
-
+#include <sstream>
 #pragma comment(lib,"winmm.lib")
 #pragma comment(lib,"xaudio2.lib")
 
@@ -59,4 +60,4 @@ namespace XAudio2File
 
 
 
-#endif//#ifndef XAUDIO2_H.
+#endif//#ifndef C_XAUDIO2_H.
